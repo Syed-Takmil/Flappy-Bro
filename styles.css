@@ -32,7 +32,7 @@ body {
 #gameContainer {
   position: relative;
   z-index: 1;
-  border-radius: 22px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 0 0 3px rgba(255,217,61,0.25), 0 0 70px rgba(255,150,0,0.2), 0 30px 80px rgba(0,0,0,0.65);
 }

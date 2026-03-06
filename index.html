@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bro's Mood Board 🎮</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #1a0533;
+    --bg2: #0d1b4b;
+    --card: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.1);
+    --happy-c: #ffd93d;
+    --smilemore-c: #6bcb77;
+    --sad-c: #5eaeff;
+    --dance-c: #ff6fd8;
+    --neutral-c: #b0aac0;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+    font-family: 'Quicksand', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: orb-drift 10s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 400px; height: 400px; background: rgba(199,80,255,0.12); top: -100px; left: -100px; }
+  .orb2 { width: 350px; height: 350px; background: rgba(77,150,255,0.1); bottom: -50px; right: -50px; animation-delay: -4s; }
+  .orb3 { width: 250px; height: 250px; background: rgba(255,107,216,0.08); top: 50%; left: 50%; animation-delay: -7s; }
+
+  @keyframes orb-drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.1); }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 1;
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fade-down 0.7s ease both;
+  }
+
+  @keyframes fade-down {
+    from { opacity:0; transform: translateY(-24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  header h1 {
+    font-family: 'Boogaloo', cursive;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    color: #fff;
+    letter-spacing: 3px;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(255,111,216,0.6), 0 0 60px rgba(199,80,255,0.3);
+  }
+
+  header p {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    position: relative; z-index: 1;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fade-up 0.7s 0.2s ease both;
+  }
+
+  @keyframes fade-up {
+    from { opacity:0; transform: translateY(24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── PHOTO FRAME ── */
+  .photo-frame {
+    position: relative;
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .frame-border {
+    position: relative;
+    border-radius: 28px;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--active-c, #b0aac0), rgba(255,255,255,0.15));
+    transition: background 0.5s ease;
+    box-shadow: 0 0 60px var(--active-glow, rgba(176,170,192,0.2));
+  }
+
+  .frame-inner {
+    border-radius: 24px;
+    overflow: hidden;
+    background: #1a1030;
+    position: relative;
+    aspect-ratio: 3/4;
+  }
+
+  /* Photo slots — only active one shows */
+  .photo-slot {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-slot.visible { opacity: 1; }
+
+  .photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Placeholder shown when no real image */
+  .placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 20px;
+    text-align: center;
+    background: var(--ph-bg, #1e1535);
+  }
+
+  .placeholder .ph-emoji { font-size: 5rem; line-height: 1; }
+  .placeholder .ph-label {
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+  }
+  .placeholder .ph-hint {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 1px;
+    line-height: 1.5;
+  }
+
+  /* Mood overlay effect on top of photo */
+  .mood-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    mix-blend-mode: soft-light;
+  }
+
+  /* Dance shimmer overlay */
+  .dance-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,111,216,0.15), rgba(199,80,255,0.15));
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  /* Particle burst container */
+  .burst {
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .burst-particle {
+    position: absolute;
+    font-size: 1.4rem;
+    animation: burst-fly 1.1s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes burst-fly {
+    0%   { opacity:1; transform: translate(0,0) scale(1) rotate(0deg); }
+    100% { opacity:0; transform: translate(var(--bx), var(--by)) scale(0.5) rotate(var(--br)); }
+  }
+
+  /* Mood badge */
+  .mood-badge {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--active-c, #b0aac0);
+    color: #111;
+    font-family: 'Boogaloo', cursive;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    padding: 6px 22px;
+    border-radius: 50px;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: background 0.4s ease, transform 0.3s ease;
+    z-index: 2;
+  }
+
+  /* ── CONTROLS PANEL ── */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 200px;
+    padding-top: 10px;
+  }
+
+  .controls-title {
+    font-family: 'Boogaloo', cursive;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .mood-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 18px;
+    cursor: pointer;
+    font-family: 'Boogaloo', cursive;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: #111;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+    text-align: left;
+  }
+
+  .mood-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .mood-btn:hover  { transform: translateX(6px) scale(1.03); filter: brightness(1.1); }
+  .mood-btn:active { transform: translateX(3px) scale(0.97); }
+
+  .mood-btn.selected {
+    box-shadow: 6px 0 0 0 white inset, 0 0 30px var(--btn-glow);
+  }
+
+  .btn-emoji { font-size: 1.8rem; line-height: 1; }
+  .btn-text  { display: flex; flex-direction: column; gap: 1px; }
+  .btn-title { font-size: 1.1rem; }
+  .btn-sub   { font-size: 0.7rem; opacity: 0.6; letter-spacing: 1px; font-family: 'Quicksand', sans-serif; font-weight: 500; }
+
+  .btn-happy      { background: linear-gradient(135deg, #ffd93d, #ffb800); --btn-glow: rgba(255,217,61,0.5); }
+  .btn-smilemore  { background: linear-gradient(135deg, #6bcb77, #2ecc71); --btn-glow: rgba(107,203,119,0.5); }
+  .btn-sad        { background: linear-gradient(135deg, #5eaeff, #2979ff); color: #fff; --btn-glow: rgba(94,174,255,0.5); }
+  .btn-dance      { background: linear-gradient(135deg, #ff6fd8, #c77dff); --btn-glow: rgba(255,111,216,0.5); }
+  .btn-neutral    { background: linear-gradient(135deg, #b0aac0, #7a748a); color: #fff; --btn-glow: rgba(176,170,192,0.3); }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    position: relative; z-index: 1;
+    margin-top: 36px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    font-family: 'Boogaloo', cursive;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.3);
+    animation: fade-up 0.7s 0.4s ease both;
+  }
+
+  .score-bar .val {
+    color: #fff;
+    font-size: 1.4rem;
+    text-shadow: 0 0 20px rgba(255,255,255,0.4);
+  }
+
+  /* ── DANCE ANIM ── */
+  @keyframes dance-photo {
+    0%   { transform: rotate(-4deg) scale(1.02); }
+    25%  { transform: rotate(4deg)  scale(1.05) translateY(-6px); }
+    50%  { transform: rotate(-3deg) scale(1.02); }
+    75%  { transform: rotate(3deg)  scale(1.05) translateY(-6px); }
+    100% { transform: rotate(-4deg) scale(1.02); }
+  }
+
+  .frame-inner.dancing { animation: dance-photo 0.45s ease-in-out infinite; }
+
+  /* ── BOUNCE ── */
+  @keyframes photo-bounce {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.07); }
+    65%  { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+  .frame-inner.bounce { animation: photo-bounce 0.5s ease forwards; }
+
+  /* ── SAD SHAKE ── */
+  @keyframes photo-sad {
+    0%,100% { transform: translateX(0) rotate(0deg); }
+    20% { transform: translateX(-10px) rotate(-2deg); }
+    40% { transform: translateX(10px) rotate(2deg); }
+    60% { transform: translateX(-7px) rotate(-1deg); }
+    80% { transform: translateX(7px) rotate(1deg); }
+  }
+  .frame-inner.sad-shake { animation: photo-sad 0.6s ease forwards; }
+
+  /* ── RAIN DROPS ── */
+  .rain-drop {
+    position: fixed;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, #5eaeff);
+    border-radius: 2px;
+    animation: rain-fall var(--rd, 0.8s) linear forwards;
+    pointer-events: none;
+    z-index: 99;
+  }
+  @keyframes rain-fall {
+    from { opacity: 0.7; transform: translateY(-20px); }
+    to   { opacity: 0;   transform: translateY(120px); }
+  }
+
+  /* ── MUSIC NOTES ── */
+  .music-note {
+    position: fixed;
+    font-size: 1.6rem;
+    pointer-events: none;
+    z-index: 99;
+    animation: note-rise var(--nd, 1.4s) ease-out forwards;
+  }
+  @keyframes note-rise {
+    0%   { opacity:1; transform: translate(0,0) rotate(0deg) scale(1); }
+    100% { opacity:0; transform: translate(var(--nx),var(--ny)) rotate(var(--nr)) scale(0.6); }
+  }
+
+  /* ── PHOTO SWAP FLASH ── */
+  .flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    border-radius: 24px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    animation: flash-in 0.35s ease forwards;
+  }
+  @keyframes flash-in {
+    0%  { opacity: 0.5; }
+    100%{ opacity: 0; }
+  }
+
+  /* ── HOW TO REPLACE NOTICE ── */
+  .replace-notice {
+    position: relative; z-index: 1;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 14px 20px;
+    max-width: 520px;
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+    animation: fade-up 0.7s 0.5s ease both;
+  }
+
+  .replace-notice code {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<header>
+  <h1>🎮 BRO'S MOOD BOARD</h1>
+  <p>Press a button — control his emotions!</p>
+</header>
+
+<div class="layout">
+
+  <!-- ── PHOTO FRAME ── -->
+  <div class="photo-frame">
+    <div class="frame-border" id="frameBorder">
+      <div class="frame-inner" id="frameInner">
+
+        <!-- NEUTRAL photo -->
+        <div class="photo-slot visible" id="slot-neutral">
+          <!--
+            ╔══════════════════════════════════════╗
+            ║  REPLACE INSTRUCTIONS (NEUTRAL)      ║
+            ║  Delete the <div class="placeholder"> ║
+            ║  block below and uncomment the <img> ║
+            ╚══════════════════════════════════════╝
+          -->
+          <!-- <img src="neutral.jpg" alt="Neutral"> -->
+          <div class="placeholder" style="--ph-bg:#1e1535">
+            <div class="ph-emoji">😐</div>
+            <div class="ph-label">Neutral Photo</div>
+            <div class="ph-hint">Replace with<br>your brother's neutral face photo</div>
+          </div>
+        </div>
+
+        <!-- HAPPY photo -->
+        <div class="photo-slot" id="slot-happy">
+          <!-- <img src="happy.jpg" alt="Happy"> -->
+          <div class="placeholder" style="--ph-bg:#2a1f00">
+            <div class="ph-emoji">😊</div>
+            <div class="ph-label">Happy Photo</div>
+            <div class="ph-hint">Replace with<br>your brother's happy/smiling photo</div>
+          </div>
+        </div>
+
+        <!-- SMILE MORE photo -->
+        <div class="photo-slot" id="slot-smilemore">
+          <!-- <img src="smilemore.jpg" alt="Smile More"> -->
+          <div class="placeholder" style="--ph-bg:#002a0e">
+            <div class="ph-emoji">😁</div>
+            <div class="ph-label">Big Smile Photo</div>
+            <div class="ph-hint">Replace with<br>your brother's biggest smile photo</div>
+          </div>
+        </div>
+
+        <!-- SAD photo -->
+        <div class="photo-slot" id="slot-sad">
+          <!-- <img src="sad.jpg" alt="Sad"> -->
+          <div class="placeholder" style="--ph-bg:#001530">
+            <div class="ph-emoji">😢</div>
+            <div class="ph-label">Sad Photo</div>
+            <div class="ph-hint">Replace with<br>your brother's sad face photo</div>
+          </div>
+        </div>
+
+        <!-- DANCE photo -->
+        <div class="photo-slot" id="slot-dance">
+          <!-- <img src="dance.jpg" alt="Dancing"> -->
+          <div class="placeholder" style="--ph-bg:#2a002a">
+            <div class="ph-emoji">🕺</div>
+            <div class="ph-label">Dance Photo</div>
+            <div class="ph-hint">Replace with<br>your brother's fun/dancing photo</div>
+          </div>
+        </div>
+
+        <!-- Camera-flash on swap -->
+        <div id="flashEl" style="display:none"></div>
+
+        <!-- Mood overlay tint -->
+        <div class="mood-overlay" id="moodOverlay"></div>
+        <div class="dance-overlay" id="danceOverlay"></div>
+
+      </div><!-- frame-inner -->
+
+      <!-- Burst particles -->
+      <div class="burst" id="burst"></div>
+
+      <!-- Mood badge -->
+      <div class="mood-badge" id="moodBadge">😐 NEUTRAL</div>
+
+    </div><!-- frame-border -->
+  </div><!-- photo-frame -->
+
+  <!-- ── CONTROLS ── -->
+  <div class="controls">
+    <div class="controls-title">Pick a mood</div>
+
+    <button class="mood-btn btn-happy" onclick="setMood('happy', this)">
+      <span class="btn-emoji">😊</span>
+      <span class="btn-text">
+        <span class="btn-title">MAKE ME HAPPY</span>
+        <span class="btn-sub">smile face</span>
+      </span>
+    </button>
+
+    <button class="mood-btn btn-smilemore" onclick="setMood('smilemore', this)">
+      <span class="btn-emoji">😁</span>
+      <span class="btn-text">
+        <span class="btn-title">SMILE MORE!</span>
+        <span class="btn-sub">big grin</span>
+      </span>
+    </button>
+
+    <button class="mood-btn btn-sad" onclick="setMood('sad', this)">
+      <span class="btn-emoji">😢</span>
+      <span class="btn-text">
+        <span class="btn-title">MAKE ME SAD</span>
+        <span class="btn-sub">sad face</span>
+      </span>
+    </button>
+
+    <button class="mood-btn btn-dance" onclick="setMood('dance', this)">
+      <span class="btn-emoji">🕺</span>
+      <span class="btn-text">
+        <span class="btn-title">MAKE ME DANCE</span>
+        <span class="btn-sub">only one photo!</span>
+      </span>
+    </button>
+
+    <button class="mood-btn btn-neutral" onclick="setMood('neutral', this)" style="margin-top:6px">
+      <span class="btn-emoji">😐</span>
+      <span class="btn-text">
+        <span class="btn-title">RESET</span>
+        <span class="btn-sub">back to normal</span>
+      </span>
+    </button>
+  </div>
+
+</div><!-- layout -->
+
+<div class="score-bar">
+  MOOD CHANGES &nbsp;<span class="val" id="counter">0</span>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  CURRENT &nbsp;<span class="val" id="currentMoodDisplay">NEUTRAL</span>
+</div>
+
+<div class="replace-notice">
+  📸 <strong style="color:rgba(255,255,255,0.5)">How to add your brother's photos:</strong><br>
+  Open this HTML file in a text editor. Find the comments like <code>&lt;!-- &lt;img src="happy.jpg"&gt; --&gt;</code><br>
+  Put your photo files next to the HTML file, then uncomment each <code>&lt;img&gt;</code> line and delete the placeholder <code>&lt;div&gt;</code> above it.
+</div>
+
+<script>
+const MOODS = {
+  neutral:   { label:'😐 NEUTRAL',    color:'#b0aac0', glow:'rgba(176,170,192,0.3)', particles:[], overlay:'',          dance:false, rain:false },
+  happy:     { label:'😊 HAPPY!',      color:'#ffd93d', glow:'rgba(255,217,61,0.5)',  particles:['⭐','✨','💛','🌟','😊'], overlay:'rgba(255,220,50,0.06)',  dance:false, rain:false },
+  smilemore: { label:'😁 SUPER HAPPY!',color:'#6bcb77', glow:'rgba(107,203,119,0.5)', particles:['🎉','😁','🌈','💚','🎊','⭐'], overlay:'rgba(100,220,100,0.06)', dance:false, rain:false },
+  sad:       { label:'😢 SAD...',       color:'#5eaeff', glow:'rgba(94,174,255,0.5)',  particles:['💧','😢','🌧️','💙'],     overlay:'rgba(50,100,255,0.08)',  dance:false, rain:true  },
+  dance:     { label:'🕺 DANCING!',    color:'#ff6fd8', glow:'rgba(255,111,216,0.5)', particles:['🎵','🎶','✨','💃','🎸'], overlay:'',                      dance:true,  rain:false },
+};
+
+let counter = 0;
+let currentMood = 'neutral';
+let danceTimer = null;
+
+function setMood(mood, btn) {
+  if (mood !== 'neutral') counter++;
+  currentMood = mood;
+  const m = MOODS[mood];
+
+  // Update counter & label
+  document.getElementById('counter').textContent = counter;
+  document.getElementById('currentMoodDisplay').textContent = mood.toUpperCase();
+
+  // Swap photo slot
+  document.querySelectorAll('.photo-slot').forEach(s => s.classList.remove('visible'));
+  document.getElementById('slot-' + mood).classList.add('visible');
+
+  // Flash effect
+  triggerFlash();
+
+  // Frame border color
+  document.getElementById('frameBorder').style.background =
+    `linear-gradient(135deg, ${m.color}, rgba(255,255,255,0.12))`;
+  document.getElementById('frameBorder').style.boxShadow =
+    `0 0 60px ${m.glow}`;
+
+  // Badge
+  const badge = document.getElementById('moodBadge');
+  badge.textContent = m.label;
+  badge.style.background = m.color;
+
+  // Overlay tint
+  const ov = document.getElementById('moodOverlay');
+  ov.style.background = m.overlay;
+  ov.style.opacity = m.overlay ? '1' : '0';
+
+  // Dance overlay
+  const dov = document.getElementById('danceOverlay');
+  dov.style.opacity = m.dance ? '1' : '0';
+
+  // Stop previous dance
+  clearInterval(danceTimer);
+  const fi = document.getElementById('frameInner');
+  fi.classList.remove('dancing','bounce','sad-shake');
+
+  // Trigger animation
+  void fi.offsetWidth;
+  if (m.dance) {
+    fi.classList.add('dancing');
+    danceTimer = setInterval(() => spawnNotes(), 900);
+    spawnNotes();
+  } else if (mood === 'happy' || mood === 'smilemore') {
+    fi.classList.add('bounce');
+    setTimeout(() => fi.classList.remove('bounce'), 600);
+  } else if (mood === 'sad') {
+    fi.classList.add('sad-shake');
+    setTimeout(() => fi.classList.remove('sad-shake'), 700);
+  }
+
+  // Burst particles
+  spawnBurst(m.particles);
+
+  // Rain
+  if (m.rain) { spawnRain(); }
+
+  // Button highlight
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function triggerFlash() {
+  const fl = document.getElementById('flashEl');
+  fl.className = '';
+  fl.style.display = 'block';
+  void fl.offsetWidth;
+  fl.className = 'flash';
+  setTimeout(() => { fl.style.display = 'none'; }, 400);
+}
+
+function spawnBurst(emojis) {
+  if (!emojis.length) return;
+  const b = document.getElementById('burst');
+  b.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('div');
+    p.className = 'burst-particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    const angle = Math.random() * 360;
+    const dist  = 60 + Math.random() * 80;
+    const bx = Math.cos(angle * Math.PI/180) * dist;
+    const by = Math.sin(angle * Math.PI/180) * dist - 40;
+    p.style.cssText = `left:${40+Math.random()*20}%;top:${40+Math.random()*20}%;
+      --bx:${bx}px;--by:${by}px;--br:${(Math.random()-0.5)*120}deg;
+      animation-delay:${Math.random()*0.3}s;animation-duration:${0.9+Math.random()*0.4}s`;
+    b.appendChild(p);
+    setTimeout(() => p.remove(), 1500);
+  }
+}
+
+function spawnNotes() {
+  const notes = ['🎵','🎶','🎸','🎤','💃','✨'];
+  const frame = document.getElementById('frameBorder').getBoundingClientRect();
+  for (let i = 0; i < 4; i++) {
+    const n = document.createElement('div');
+    n.className = 'music-note';
+    n.textContent = notes[Math.floor(Math.random() * notes.length)];
+    n.style.left = (frame.left + Math.random() * frame.width) + 'px';
+    n.style.top  = (frame.top  + frame.height * 0.3 + Math.random() * frame.height * 0.4) + 'px';
+    n.style.setProperty('--nx', (Math.random()-0.5)*120+'px');
+    n.style.setProperty('--ny', -(60+Math.random()*80)+'px');
+    n.style.setProperty('--nr', (Math.random()-0.5)*180+'deg');
+    n.style.setProperty('--nd', (1.1+Math.random()*0.6)+'s');
+    n.style.animationDelay = (i*0.22)+'s';
+    document.body.appendChild(n);
+    setTimeout(() => n.remove(), 2200);
+  }
+}
+
+function spawnRain() {
+  const frame = document.getElementById('frameBorder').getBoundingClientRect();
+  for (let i = 0; i < 18; i++) {
+    const r = document.createElement('div');
+    r.className = 'rain-drop';
+    r.style.left   = (frame.left + Math.random() * frame.width) + 'px';
+    r.style.top    = (frame.top - 10) + 'px';
+    r.style.height = (15 + Math.random() * 25) + 'px';
+    r.style.setProperty('--rd', (0.5 + Math.random() * 0.6) + 's');
+    r.style.animationDelay = (Math.random() * 0.8) + 's';
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 1600);
+  }
+}
+</script>
+</body>
+</html>
